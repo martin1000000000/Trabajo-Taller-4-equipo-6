@@ -1,0 +1,166 @@
+[
+  {
+    "id": 1,
+    "texto": "Me apasiona programar y desarrollar software",
+    "categoria": "Informática"
+  },
+  {
+    "id": 2,
+    "texto": "Me interesa la inteligencia artificial y machine learning",
+    "categoria": "Informática"
+  },
+  {
+    "id": 3,
+    "texto": "Disfruto trabajando con bases de datos y redes",
+    "categoria": "Informática"
+  },
+  {
+    "id": 4,
+    "texto": "Me gusta el diseño de circuitos electrónicos",
+    "categoria": "Electrónica"
+  },
+  {
+    "id": 5,
+    "texto": "Me interesan las telecomunicaciones y señales",
+    "categoria": "Electrónica"
+  },
+  {
+    "id": 6,
+    "texto": "Me apasiona la automatización y control industrial",
+    "categoria": "Electrónica"
+  },
+  {
+    "id": 7,
+    "texto": "Disfruto diseñando y construyendo máquinas",
+    "categoria": "Mecánica"
+  },
+  {
+    "id": 8,
+    "texto": "Me interesa la termodinámica y fluidos",
+    "categoria": "Mecánica"
+  },
+  {
+    "id": 9,
+    "texto": "Me gusta trabajar con materiales y resistencia",
+    "categoria": "Mecánica"
+  },
+  {
+    "id": 10,
+    "texto": "Me apasiona el sonido y las ondas acústicas",
+    "categoria": "Acústica"
+  },
+  {
+    "id": 11,
+    "texto": "Me interesa el control de ruido y vibraciones",
+    "categoria": "Acústica"
+  },
+  {
+    "id": 12,
+    "texto": "Disfruto diseñando sistemas de audio",
+    "categoria": "Acústica"
+  },
+  {
+    "id": 13,
+    "texto": "Me gusta la ingeniería de buques y embarcaciones",
+    "categoria": "Naval"
+  },
+  {
+    "id": 14,
+    "texto": "Me interesa la hidrodinámica y propulsión",
+    "categoria": "Naval"
+  },
+  {
+    "id": 15,
+    "texto": "Me apasiona el diseño de estructuras marinas",
+    "categoria": "Naval"
+  },
+  {
+    "id": 16,
+    "texto": "Disfruto optimizando procesos industriales",
+    "categoria": "Industrial"
+  },
+  {
+    "id": 17,
+    "texto": "Me interesa la logística y cadena de suministro",
+    "categoria": "Industrial"
+  },
+  {
+    "id": 18,
+    "texto": "Me gusta la gestión de calidad y productividad",
+    "categoria": "Industrial"
+  },
+  {
+    "id": 19,
+    "texto": "Me apasiona diseñar carreteras y puentes",
+    "categoria": "Obras Civiles"
+  },
+  {
+    "id": 20,
+    "texto": "Me interesa la geotecnia y cimientos",
+    "categoria": "Obras Civiles"
+  },
+  {
+    "id": 31,
+    "texto": "Disfruto calculando estructuras y resistencia de materiales",
+    "categoria": "Obras Civiles"
+  },
+  {
+    "id": 21,
+    "texto": "Disfruto planificando proyectos de construcción",
+    "categoria": "Construcción"
+  },
+  {
+    "id": 22,
+    "texto": "Me gusta la gestión de obras y presupuestos",
+    "categoria": "Construcción"
+  },
+  {
+    "id": 32,
+    "texto": "Me interesa la organización de equipos de obra",
+    "categoria": "Construcción"
+  },
+  {
+    "id": 23,
+    "texto": "Prefiero una formación general en ingeniería",
+    "categoria": "Bachiller"
+  },
+  {
+    "id": 24,
+    "texto": "Quiero explorar diferentes áreas antes de especializarme",
+    "categoria": "Bachiller"
+  },
+  {
+    "id": 25,
+    "texto": "Me interesa la investigación científica aplicada",
+    "categoria": "Bachiller"
+  },
+  {
+    "id": 26,
+    "texto": "Disfruto resolviendo problemas matemáticos complejos",
+    "categoria": "General"
+  },
+  {
+    "id": 27,
+    "texto": "Me gusta trabajar en equipo y liderar proyectos",
+    "categoria": "General"
+  },
+  {
+    "id": 28,
+    "texto": "Me apasiona la innovación y nuevas tecnologías",
+    "categoria": "General"
+  },
+  {
+    "id": 29,
+    "texto": "Prefiero el trabajo de campo y prácticas",
+    "categoria": "General"
+  },
+  {
+    "id": 30,
+    "texto": "Me interesa el impacto social de la ingeniería",
+    "categoria": "General"
+  }
+
+
+
+  
+]

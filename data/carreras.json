@@ -1,0 +1,118 @@
+[
+  {
+    "id": 1,
+    "nombre": "Ingeniería en Informática",
+    "desc": "Desarrollo de software, inteligencia artificial y sistemas computacionales",
+    "keywords": [
+      "programación",
+      "software",
+      "inteligencia artificial",
+      "bases de datos",
+      "redes",
+      "algoritmos"
+    ]
+  },
+  {
+    "id": 2,
+    "nombre": "Ingeniería Naval",
+    "desc": "Diseño, construcción y mantenimiento de embarcaciones y estructuras marinas",
+    "keywords": [
+      "buques",
+      "embarcaciones",
+      "hidrodinámica",
+      "propulsión",
+      "estructuras marinas",
+      "naval"
+    ]
+  },
+  {
+    "id": 3,
+    "nombre": "Ingeniería en Mecánica",
+    "desc": "Diseño, construcción y mantenimiento de máquinas y sistemas mecánicos",
+    "keywords": [
+      "máquinas",
+      "termodinámica",
+      "fluidos",
+      "materiales",
+      "resistencia",
+      "diseño mecánico"
+    ]
+  },
+  {
+    "id": 4,
+    "nombre": "Ingeniería en Acústica",
+    "desc": "Control de sonido, vibraciones y diseño de sistemas audio",
+    "keywords": [
+      "sonido",
+      "ondas acústicas",
+      "ruido",
+      "vibraciones",
+      "sistemas de audio",
+      "acústica"
+    ]
+  },
+  {
+    "id": 5,
+    "nombre": "Ingeniería en Electrónica",
+    "desc": "Diseño de circuitos, telecomunicaciones y sistemas electrónicos",
+    "keywords": [
+      "circuitos",
+      "electrónica",
+      "telecomunicaciones",
+      "señales",
+      "automatización",
+      "control industrial"
+    ]
+  },
+  {
+    "id": 6,
+    "nombre": "Ingeniería Industrial",
+    "desc": "Optimización de procesos, logística y gestión de calidad",
+    "keywords": [
+      "procesos industriales",
+      "logística",
+      "cadena de suministro",
+      "gestión de calidad",
+      "productividad",
+      "optimización"
+    ]
+  },
+  {
+    "id": 7,
+    "nombre": "Bachiller en Ingeniería",
+    "desc": "Formación general en ingeniería con posibilidad de especialización posterior",
+    "keywords": [
+      "formación general",
+      "explorar áreas",
+      "investigación científica",
+      "base sólida",
+      "versatilidad"
+    ]
+  },
+  {
+    "id": 8,
+    "nombre": "Ingeniería en Obras Civiles",
+    "desc": "Diseño y construcción de infraestructura civil como carreteras y puentes",
+    "keywords": [
+      "carreteras",
+      "puentes",
+      "geotecnia",
+      "cimientos",
+      "infraestructura",
+      "obras civiles"
+    ]
+  },
+  {
+    "id": 9,
+    "nombre": "Ingeniería en Construcción",
+    "desc": "Gestión y ejecución de proyectos de construcción",
+    "keywords": [
+      "proyectos construcción",
+      "gestión de obras",
+      "presupuestos",
+      "planificación",
+      "ejecución",
+      "construcción"
+    ]
+  }
+]
