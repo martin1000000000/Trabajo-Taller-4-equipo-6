@@ -1,7 +1,9 @@
 
 "use client";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
+// 1. DEJA LA FUNCIÓN DE MEZCLAR AQUÍ
 function mezclarArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -12,8 +14,8 @@ function mezclarArray(array) {
 }
 
 export default function TestPage(){
+  const router = useRouter();
   const [rasgos, setRasgos] = useState([]);
-  const [rasgosMezclados, setRasgosMezclados] = useState([]);
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -23,8 +25,8 @@ export default function TestPage(){
     fetch("/api/frases")
       .then(r => r.json())
       .then(data => {
-        setRasgos(data);
-        setRasgosMezclados(mezclarArray(data));
+        // 2. LLAMA A LA FUNCIÓN AQUÍ, DESPUÉS DE RECIBIR LOS DATOS
+        setRasgos(mezclarArray(data)); 
       })
       .finally(() => setLoading(false));
   }, []);
@@ -34,67 +36,38 @@ export default function TestPage(){
     setError("");
   };
 
-  const terminar = async () => {
+  const siguientePaso = () => {
     if (seleccionadas.length < 4) {
       setError(`Debes seleccionar al menos 4 frases. Has seleccionado ${seleccionadas.length}.`);
       return;
     }
-
     setEnviando(true);
-    setError("");
-
-    try {
-      console.log('Enviando:', seleccionadas);
-      
-      const res = await fetch("/api/recomendar", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ selected: seleccionadas })
-      });
-
-      const data = await res.json();
-      
-      if (!res.ok) {
-        throw new Error(data.error || "Error del servidor");
-      }
-
-      console.log('Éxito:', data);
-      sessionStorage.setItem("resultado", JSON.stringify(data));
-      window.location.href = "/resultado";
-      
-    } catch (err) {
-      console.error('Error:', err);
-      setError(err.message || "Error de conexión");
-    } finally {
-      setEnviando(false);
-    }
+    sessionStorage.setItem("seleccionadas_temp", JSON.stringify(seleccionadas));
+    router.push("/ordenar");
   };
 
+  // ... (El resto de tu código HTML/JSX se mantiene igual) ...
+  
   if (loading) return (
     <main className="loading-container floating-particles">
       <div className="loading-spinner"></div>
-      <div className="loading-text">Cargando rasgos</div>
+      <div className="loading-text">Cargando rasgos...</div>
       <div className="loading-subtext">Preparando tu test personalizado...</div>
     </main>
   );
 
   const puedeEnviar = seleccionadas.length >= 4 && seleccionadas.length <= 6 && !enviando;
-  
+
   return (
     <div className="page-background">
       <main className="test-container">
         <h2 className="test-title">Selecciona las frases que más te representen</h2>
         <p className="test-subtitle">
-          Haz clic en las frases para seleccionarlas. Las frases seleccionadas cambian de color. Puedes escoger entre 4 y 6 frases.
+          Haz clic en las frases para seleccionarlas. Puedes escoger entre 4 y 6 frases.
         </p>
         
         <div className="selection-counter">
-          {seleccionadas.length} frase{seleccionadas.length !== 1 ? 's' : ''} seleccionada{seleccionadas.length !== 1 ? 's' : ''}
-          {seleccionadas.length < 4 && (
-            <span style={{color: 'red', marginLeft: '10px', fontSize: '14px'}}>
-              (Mínimo 4 requeridas)
-            </span>
-          )}
+          {/* ... (código del contador) ... */}
         </div>
 
         {error && (
@@ -112,7 +85,7 @@ export default function TestPage(){
         )}
         
         <div className="frases-grid">
-          {rasgosMezclados.map(rasgo => (
+          {rasgos.map(rasgo => (
             <button 
               key={rasgo.id} 
               onClick={() => toggle(rasgo.id)} 
@@ -126,7 +99,7 @@ export default function TestPage(){
 
         <div>
           <button 
-            onClick={terminar} 
+            onClick={siguientePaso}
             className="terminar-button"
             disabled={!puedeEnviar}
             style={{ 
@@ -134,12 +107,14 @@ export default function TestPage(){
               cursor: puedeEnviar ? 'pointer' : 'not-allowed'
             }}
           >
-            {enviando ? 'Procesando...' : 
+            {enviando ? 'Cargando...' : 
              seleccionadas.length < 4 ? `Selecciona ${4 - seleccionadas.length} más` : 
-             'Terminar Test'}
+             'Siguiente (Ordenar)'}
           </button>
         </div>
       </main>
     </div>
   );
 }
+
+

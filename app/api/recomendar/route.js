@@ -1,19 +1,10 @@
-
 import { NextResponse } from 'next/server';
-import { readFileSync } from 'fs';
-import path from 'path';
+import { getSheetData } from '@/lib/googleSheets';
 
-// Cargar archivos
-const carrerasPath = path.join(process.cwd(), 'data', 'carreras.json');
-const frasesPath = path.join(process.cwd(), 'data', 'ver2.json');
-
-const carreras = JSON.parse(readFileSync(carrerasPath, 'utf8'));
-const rasgos = JSON.parse(readFileSync(frasesPath, 'utf8'));
-      
-// Mapeo de nombres
+// 1. ESTE ES EL MAPA "TRADUCTOR" QUE FALTABA
 const mapeoCarreras = {
   "Informática": "Ingeniería en Informática",
-  "Electrónica": "Ingeniería en Electrónica", 
+  "Electrónica": "Ingeniería en Electrónica",
   "Mecánica": "Ingeniería en Mecánica",
   "Acústica": "Ingeniería en Acústica",
   "Naval": "Ingeniería Naval",
@@ -21,90 +12,131 @@ const mapeoCarreras = {
   "Bachillerato": "Bachiller en Ingeniería",
   "Obras Civiles": "Ingeniería en Obras Civiles",
   "Construcción": "Ingeniería en Construcción",
-  "Plan Común": "Plan Común"
+  "Plan Común": "Bachiller en Ingeniería" 
 };
 
-function calcularPuntajesSimple(seleccionadas) {
-  const puntajes = {};
-
-  // Inicializar todas las carreras con 0
-  Object.values(mapeoCarreras).forEach(carrera => {
-    puntajes[carrera] = 0;
-  }); 
-
-  // Sumar puntos por cada rasgo seleccionado
-  seleccionadas.forEach(id => {
-    const rasgo = rasgos.find(r => r.id === id);
-    if (rasgo && rasgo.carreras) {
-      rasgo.carreras.forEach(carreraVer2 => {
-        const carreraNombre = mapeoCarreras[carreraVer2];
-        if (carreraNombre) {
-          puntajes[carreraNombre]++;
-        }
-      });
-    }
-  });
-
-  // Convertir a array de resultados
-  return carreras.map(carrera => {
-    const puntaje = puntajes[carrera.nombre] || 0;
-    
-    return {
-      carrera: carrera.nombre,
-      descripcion: carrera.desc,
-      puntaje: puntaje,
-      rasgosEspecificos: puntaje,
-      perfil: obtenerPerfil(puntaje),
-      id: carrera.id
-    };
-  });
-}
-
-function obtenerPerfil(puntaje) {
-  if (puntaje >= 4) return "Muy definido";
-  if (puntaje === 3) return "Definido";
-  if (puntaje === 2) return "Interés moderado";
-  if (puntaje === 1) return "Interés leve";
-  return "Sin coincidencias";
+function generarEscalaPorcentual(k) {
+  let sumaTotal = (k * (k + 1)) / 2;
+  if (sumaTotal === 0) return Array(k).fill(0);
+  
+  let escala = [];
+  for (let i = k; i >= 1; i--) {
+    escala.push((i / sumaTotal) * 100.0);
+  }
+  return escala;
 }
 
 export async function POST(request) {
   try {
-    const { selected } = await request.json();
+    const { selectedOrdered } = await request.json();
 
-    if (!selected || !Array.isArray(selected)) {
+    if (!selectedOrdered || !Array.isArray(selectedOrdered) || selectedOrdered.length < 4) {
       return NextResponse.json({ error: "Datos inválidos" }, { status: 400 });
     }
 
-    // VALIDAR MÍNIMO 4 FRASES
-    if (selected.length < 4) {
-      return NextResponse.json({ 
-        error: `Debes seleccionar al menos 4 frases. Has seleccionado ${selected.length}.` 
-      }, { status: 400 });
+    const rasgosRaw = await getSheetData("'Hoja 1'!A:C");
+    const carrerasRaw = await getSheetData("'Hoja 2'!A:D"); 
+
+    if (!rasgosRaw.length || !carrerasRaw.length) {
+       return NextResponse.json({ error: "Error al leer la base de datos" }, { status: 500 });
     }
 
+    const dataRasgos = rasgosRaw.slice(1);
+    const dataCarreras = carrerasRaw.slice(1);
 
-    console.log('Rasgos seleccionados:', selected);
+    const rasgosDb = dataRasgos.map(fila => ({
+        id: Number(fila[0]),
+        rasgo: fila[1],
+        carreras: fila[2] ? fila[2].split(',').map(c => c.trim()) : []
+    }));
+    
+    const carrerasDb = dataCarreras.map(fila => ({
+        id: Number(fila[0]),
+        nombre: fila[1],
+        desc: fila[2],
+        keywords: fila[3] ? fila[3].split(',').map(k => k.trim()) : []
+    }));
 
-    const resultados = calcularPuntajesSimple(selected);
+    const rasgosMap = new Map(rasgosDb.map(r => [r.id, r]));
 
-    console.log('Resultados calculados:', resultados);
+    const rasgosOrdenadosUsuario = selectedOrdered
+      .map(id => rasgosMap.get(id))
+      .filter(Boolean);
 
-    // Ordenar por puntaje descendente
-    const recomendaciones = resultados
-      .filter(r => r.puntaje > 0)
-      .sort((a, b) => b.puntaje - a.puntaje)
-      .slice(0, 3);
+    const k = rasgosOrdenadosUsuario.length;
+    const escalaCalculo = generarEscalaPorcentual(k);
 
-    console.log('Recomendaciones finales:', recomendaciones);
+    let pPonderados = {};
+    let pSimples = {};
+    let posAlcanza2 = {};
+    let acumuladoSimple = {};
+
+    carrerasDb.forEach(c => {
+        pPonderados[c.nombre] = 0.0;
+        pSimples[c.nombre] = 0;
+        posAlcanza2[c.nombre] = k + 1;
+        acumuladoSimple[c.nombre] = 0;
+    });
+
+    rasgosOrdenadosUsuario.forEach((rasgo, index) => {
+        const pesoActual = escalaCalculo[index] || 0;
+        
+        // 2. TRADUCIMOS LOS NOMBRES CORTOS A LARGOS
+        const carrerasRasgo = rasgo.carreras.map(corta => mapeoCarreras[corta]).filter(Boolean);
+
+        if (carrerasRasgo.length === 2 && carrerasRasgo[0] === carrerasRasgo[1]) {
+             const cNombre = carrerasRasgo[0];
+             if (pPonderados.hasOwnProperty(cNombre)) {
+                 pPonderados[cNombre] += pesoActual;
+                 pSimples[cNombre] += 2;
+                 acumuladoSimple[cNombre] += 2;
+                 if (acumuladoSimple[cNombre] >= 2 && posAlcanza2[cNombre] > k) {
+                     posAlcanza2[cNombre] = index;
+                 }
+             }
+        } else if (carrerasRasgo.length > 0) {
+            const puntajeDividido = pesoActual / carrerasRasgo.length;
+            carrerasRasgo.forEach(cNombre => {
+                if (pPonderados.hasOwnProperty(cNombre)) {
+                    pPonderados[cNombre] += puntajeDividido;
+                    pSimples[cNombre] += 1;
+                    acumuladoSimple[cNombre] += 1;
+                    if (acumuladoSimple[cNombre] >= 2 && posAlcanza2[cNombre] > k) {
+                        posAlcanza2[cNombre] = index;
+                    }
+                }
+            });
+        }
+    });
+
+    const resultadosFinales = carrerasDb.map(c => ({
+        carrera: c.nombre,
+        descripcion: c.desc,
+        id: c.id,
+        puntaje: pPonderados[c.nombre],
+        _scoreSimple: pSimples[c.nombre],
+        _posAlcanza2: posAlcanza2[c.nombre]
+    }))
+    .filter(r => r.puntaje > 0.001)
+    .sort((a, b) => {
+        if (Math.abs(b.puntaje - a. puntaje) > 0.0001) {
+            return b.puntaje - a.puntaje;
+        }
+        if (b._scoreSimple !== a._scoreSimple) {
+            return b._scoreSimple - a._scoreSimple;
+        }
+        return a._posAlcanza2 - b._posAlcanza2;
+    });
+
+    const recomendaciones = resultadosFinales.slice(0, 3).map(r => ({
+        id: r.id,
+        carrera: r.carrera,
+        descripcion: r.descripcion,
+        puntaje: r.puntaje
+    }));
 
     return NextResponse.json({
       recomendaciones: recomendaciones,
-      totalSeleccionadas: selected.length,
-      estadisticas: {
-        totalCarrerasEvaluadas: resultados.length,
-        carrerasConPuntaje: resultados.filter(r => r.puntaje > 0).length
-      }
     });
 
   } catch (error) {

@@ -497,24 +497,23 @@ body {
   display: inline-block;
 }
 
+
+
+/*  aca modificar   */
 .resultado-subtitle {
   font-style: italic;
   font-size: 1.3rem;
   margin-bottom: 4rem;
   font-family: 'Arial', sans-serif;
   color:white;
-  font-style: italic;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
-  max-width: 600px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-  opacity: 1;
-  background: linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.3),
-  );
-
+  background: rgba(30, 41, 59, 0.4);
+  padding: 1.1rem;
+  border-radius: 2px;
+  backdrop-filter: blur(5px);
+  border: 1px solid rgba(255, 106, 33, 0.3);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+  width: 65%;
+  margin: 0 auto 4rem auto;
 
 }
 
@@ -762,4 +761,85 @@ body {
   .primero .nombre-carrera {
     font-size: 1.8rem !important;
   }
+}
+
+/* ===== NUEVO CONTENEDOR PARA BOTONES DE ESQUINAS ===== */
+.contenedor-botones-extremos {
+  display: flex;
+  justify-content: space-between; /* <-- ESTA ES LA MAGIA */
+  align-items: center;
+  width: 100%;
+  padding-top: 1rem; /* Opcional, para darle espacio */
+}
+
+/* ===== BOTÓN METODOLOGÍA (LIMPIO) ===== */
+.Metodologia-button {
+  background: white;
+  color: #FF6A21;
+  border: none;
+  padding: 15px 38px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 106, 33, 0.4);
+  /* Ya no necesita display: block ni margins auto */
+}
+
+/* ===== BOTÓN PLAN (LIMPIO) ===== */
+.Plan-button {
+  background: white;
+  color: #FF6A21;
+  border: none;
+  padding: 15px 38px;
+  border-radius: 10px;
+  cursor: pointer;
+  font-size: 1rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(255, 106, 33, 0.4);
+  /* Ya no necesita display: block ni margins auto */
+}
+
+
+/*------------Panel desplegable de la Metodologia------------ */
+.plan-panel {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 50;
+  
+  background: white;
+  color: #333;
+  border-bottom: 3px solid #FF6A21;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+  
+  /* Oculto por defecto, movido hacia arriba */
+  transform: translateY(-100%);
+  transition: transform 0.4s ease-in-out;
+}
+
+.plan-panel.open {
+  /* Se mueve a su posición visible */
+  transform: translateY(0);
+}
+
+.plan-panel-content {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.plan-panel-close {
+  background: #FF6A21;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-top: 1rem;
+  display: block;
+  margin-left: auto; /* Botón de cerrar a la derecha */
 }

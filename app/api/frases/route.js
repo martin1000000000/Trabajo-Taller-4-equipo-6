@@ -1,11 +1,26 @@
 import { NextResponse } from 'next/server';
-import { readFileSync } from 'fs';
-import path from 'path';
-
-// Cargar el nuevo archivo ver2.json
-const frasesPath = path.join(process.cwd(), 'data', 'ver2.json');
-const rasgos = JSON.parse(readFileSync(frasesPath, 'utf8'));
+import { getSheetData } from '@/lib/googleSheets';
 
 export async function GET() {
-  return NextResponse.json(rasgos);  DFDFD
+  try {
+    const dataRaw = await getSheetData("'Hoja 1'!A:C");
+
+    if (!dataRaw || dataRaw.length < 2) {
+       return NextResponse.json([]);
+    }
+
+    const dataRows = dataRaw.slice(1);
+
+    const frasesFormateadas = dataRows.map(fila => ({
+      id: Number(fila[0]),
+      rasgo: fila[1],
+      carreras: fila[2] ? fila[2].split(',').map(c => c.trim()) : []
+    }));
+
+    return NextResponse.json(frasesFormateadas);
+
+  } catch (error) {
+    console.error("Error en api/frases:", error);
+    return NextResponse.json({ error: "Error al leer los datos" }, { status: 500 });
+  }
 }
