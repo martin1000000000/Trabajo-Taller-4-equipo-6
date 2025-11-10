@@ -65,10 +65,7 @@ export default function TestPage(){
         <p className="test-subtitle">
           Haz clic en las frases para seleccionarlas. Puedes escoger entre 4 y 6 frases.
         </p>
-        
-        <div className="selection-counter">
-          {/* ... (código del contador) ... */}
-        </div>
+     
 
         {error && (
           <div style={{
