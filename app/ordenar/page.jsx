@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-
+   
 export default function OrdenarPage() {
   const router = useRouter();
   const [frasesOrdenadas, setFrasesOrdenadas] = useState([]); // Almacenará los objetos de frases (id, rasgo)

@@ -1,6 +1,38 @@
 "use client";
 import { useEffect, useState } from "react";
 
+// --- 1. CONFIGURACIÓN DE LOS ENLACES (IDs de la UACh) ---
+const LINKS_MALLAS = {
+  'informática': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1708', //arreglado
+  'industrial': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1822', //arreglado
+  'electrónica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1736', //arreglado
+  'construcción': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1737', //arreglado
+  'obras civiles': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1704', //arreglao
+  'mecánica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1779',  //arreglado  
+  'acústica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1730',//arreglado  
+  'naval': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1740', //arreglado
+  'bachillerato': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807',//arreglao
+  'default': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807' 
+};
+
+// --- 2. FUNCIÓN PARA ELEGIR EL LINK CORRECTO ---
+const obtenerLinkCarrera = (nombreCarrera) => {
+  // Convertimos a minúsculas y quitamos tildes para comparar fácil
+  const nombreNormalizado = nombreCarrera.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  
+  if (nombreNormalizado.includes('informatica')) return LINKS_MALLAS['informática'];
+  if (nombreNormalizado.includes('industrial')) return LINKS_MALLAS['industrial'];
+  if (nombreNormalizado.includes('electronica')) return LINKS_MALLAS['electrónica'];
+  if (nombreNormalizado.includes('construccion')) return LINKS_MALLAS['construcción'];
+  if (nombreNormalizado.includes('obras')) return LINKS_MALLAS['obras civiles'];
+  if (nombreNormalizado.includes('mecanica')) return LINKS_MALLAS['mecánica'];
+  if (nombreNormalizado.includes('acustica')) return LINKS_MALLAS['acústica'];
+  if (nombreNormalizado.includes('naval')) return LINKS_MALLAS['naval'];
+  if (nombreNormalizado.includes('bachillerato')) return LINKS_MALLAS['bachillerato'];
+  
+  return LINKS_MALLAS['default'];
+};
+
 
 export default function ResultadoPage() {
   const [resultado, setResultado] = useState(null);
@@ -10,7 +42,6 @@ export default function ResultadoPage() {
     const data = sessionStorage.getItem("resultado");
     if (data) {
       const parsedData = JSON.parse(data);
-      console.log('Datos recibidos en resultado:', parsedData);
       setResultado(parsedData);
     }
   }, []);
@@ -46,6 +77,8 @@ export default function ResultadoPage() {
   
   return (
     <main className="resultado-container">
+      
+      {/* --- Panel de Metodología --- */}
       <div className={`plan-panel ${isPlanOpen ? 'open' : ''}`}>
         <div className="plan-panel-content">
           <h1 style={{ marginBottom: '1.25rem' } }>Explicación de la Metodología</h1>
@@ -67,32 +100,21 @@ export default function ResultadoPage() {
             demostrando cómo se reducen drásticamente los empates en cada paso del algoritmo.
           </p>
 
-          {/* --- Gráfico Añadido --- */}
           <div style={{ 
-            width: '100%', 
-            maxWidth: '550px', 
-            margin: '20px auto', 
-            padding: '10px', 
-            background: '#ffffff', 
-            borderRadius: '8px',
-            boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+            width: '100%', maxWidth: '550px', margin: '20px auto', 
+            padding: '10px', background: '#ffffff', 
+            borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
           }}>
-           
             <img 
               src="/reduccion_empates.png" 
-              alt="Gráfico de Reducción de Empates del Algoritmo"
-              style={{ 
-                width: '100%', 
-                height: 'auto', 
-                borderRadius: '4px' 
-              }} 
+              alt="Gráfico de Reducción de Empates"
+              style={{ width: '100%', height: 'auto', borderRadius: '4px' }} 
             />
           </div>
-          {/* --- Fin del Gráfico --- */}
 
           <p>
-            Como muestra el gráfico, el algoritmo reduce los empates de un 45.09% inicial (450,895 casos) a solo un <strong>0.53%</strong> (5,344 casos), 
-            asegurando que la carrera recomendada sea la más alineada con tus selecciones.
+           Como muestra el gráfico, el algoritmo reduce los empates de un 45.09% inicial (450,895 casos) a solo un <strong>0.53%</strong> (5,344 casos), 
+            asegurando que la carrera recomendada sea la más alineada con tus selecciones
           </p>
           
           <button onClick={togglePlanPanel} className="plan-panel-close">
@@ -100,7 +122,6 @@ export default function ResultadoPage() {
           </button>
         </div>
       </div>
-      {/* --- FIN: Panel de Metodología --- */}
 
 
       <h1 className="resultado-title">Carreras más afines</h1>
@@ -109,27 +130,57 @@ export default function ResultadoPage() {
       </p>
 
       <div className="podio">
-        {resultado.recomendaciones.map((r, index) => (
-          <div 
-            key={r.id || index}
-            className={`carrera-card ${
-              index === 0 ? 'primero' : 
-              index === 1 ? 'segundo' : 'tercero'
-            }`}
-          >
-            <div className="numero-podio">
-              {index + 1}°
+        {resultado.recomendaciones.map((r, index) => {
+          // Calculamos el link específico para esta carrera
+          const linkMalla = obtenerLinkCarrera(r.carrera);
+          
+          return (
+            <div 
+              key={r.id || index}
+              className={`carrera-card ${
+                index === 0 ? 'primero' : 
+                index === 1 ? 'segundo' : 'tercero'
+              }`}
+            >
+              <div className="numero-podio">
+                {index + 1}°
+              </div>
+              
+              <h3 className="nombre-carrera">
+                {r.carrera.replace('Ingeniería en ', '').replace('Ingeniería ', '')}
+              </h3>
+              <p className="descripcion-carrera">{r.descripcion}</p>
+              
+              {/* --- AQUÍ ESTÁ EL CAMBIO --- */}
+              {/* Se quitó el puntaje de afinidad y se puso el botón */}
+              <a 
+                href={linkMalla}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  display: 'inline-block',
+                  marginTop: '15px',
+                  padding: '8px 20px',
+                  backgroundColor: 'rgba(255, 255, 255, 0.25)',
+                  color: 'white',
+                  borderRadius: '50px', // Bordes bien redondeados
+                  textDecoration: 'none',
+                  fontWeight: '600',
+                  fontSize: '0.9rem',
+                  border: '1px solid rgba(255,255,255,0.6)',
+                  cursor: 'pointer',
+                  transition: 'background 0.3s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.4)'}
+                onMouseOut={(e) => e.currentTarget.style.backgroundColor = 'rgba(255, 255, 255, 0.25)'}
+              >
+                Ver Plan de Estudios ➜
+              </a>
+              {/* --------------------------- */}
+
             </div>
-            
-            <h3 className="nombre-carrera">
-              {r.carrera.replace('Ingeniería en ', '').replace('Ingeniería ', '')}
-            </h3>
-            <p className="descripcion-carrera">{r.descripcion}</p>
-            <div className="puntaje">
-              {`Afinidad: ${r.puntaje.toFixed(1)}%`}
-            </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
 
       <button 
@@ -144,13 +195,15 @@ export default function ResultadoPage() {
           className="Plan-button"
           onClick={togglePlanPanel}
         >
-          Ver metodologia
+          Ver metodología
         </button>
+        
+        {/* Botón genérico de abajo (opcional, ya que arriba tienen los links específicos) */}
         <button 
           className="Metodologia-button"
-          
+          onClick={() => window.open("https://www.uach.cl/admision", "_blank")}
         >
-          Ver Plan de estudios 
+          Ver admisión general
         </button>
       </div>
     </main>

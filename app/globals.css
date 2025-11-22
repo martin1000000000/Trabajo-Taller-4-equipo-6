@@ -30,7 +30,7 @@ body {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url('/imagen01.webp');
+  background-image: url('/imagen0110.jpg');
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -66,27 +66,7 @@ body {
 }
 
 
-/* ===== Logo de la universidad===== */
 
-.university-logo {
-  width: 140px;
-  height: 140px;
-  background-image: url('/imagen04.jpg');
-  background-size: contain;
-  background-position: center;
-  background-repeat: no-repeat;
-  margin-bottom: 1.5rem;
-  border-radius: 12px;
-  animation: float 3s ease-in-out infinite;
-  margin-left: auto;
-  margin-right: auto;
-
-}
-
-@keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-10px); }
-}
 /* ===== hasta aca ===== */
 
 
@@ -565,6 +545,7 @@ body {
   color: white;
   order: 2;
   transform: scale(1.0);
+  left: 5px;
 }
 
 .tercero {
@@ -574,6 +555,9 @@ body {
   color: white;
   order: 3;
   transform: scale(0.9);
+  left: -15px;
+
+
 }
 
 /* Números del podio */
