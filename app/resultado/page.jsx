@@ -12,7 +12,7 @@ const LINKS_MALLAS = {
   'acústica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1730',
   'naval': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1740',
   'bachillerato': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807',
-  'default': 'https://www.uach.cl/dw/admision/plandeestudio.php' 
+  'default': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807' 
 };
 
 // --- 2. FUNCIÓN PARA ELEGIR EL LINK CORRECTO ---
