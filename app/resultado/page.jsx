@@ -1,23 +1,22 @@
 "use client";
 import { useEffect, useState } from "react";
 
-// --- 1. CONFIGURACIÓN DE LOS ENLACES (IDs de la UACh) ---
+// --- 1. CONFIGURACIÓN DE LOS ENLACES ---
 const LINKS_MALLAS = {
-  'informática': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1708', //arreglado
-  'industrial': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1822', //arreglado
-  'electrónica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1736', //arreglado
-  'construcción': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1737', //arreglado
-  'obras civiles': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1704', //arreglao
-  'mecánica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1779',  //arreglado  
-  'acústica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1730',//arreglado  
-  'naval': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1740', //arreglado
-  'bachillerato': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807',//arreglao
-  'default': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807' 
+  'informática': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1708',
+  'industrial': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1822',
+  'electrónica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1736',
+  'construcción': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1737',
+  'obras civiles': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1704',
+  'mecánica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1779',
+  'acústica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1730',
+  'naval': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1740',
+  'bachillerato': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807',
+  'default': 'https://www.uach.cl/dw/admision/plandeestudio.php' 
 };
 
 // --- 2. FUNCIÓN PARA ELEGIR EL LINK CORRECTO ---
 const obtenerLinkCarrera = (nombreCarrera) => {
-  // Convertimos a minúsculas y quitamos tildes para comparar fácil
   const nombreNormalizado = nombreCarrera.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
   
   if (nombreNormalizado.includes('informatica')) return LINKS_MALLAS['informática'];
@@ -46,8 +45,43 @@ export default function ResultadoPage() {
     }
   }, []);
 
+  // --- 3. FUNCIÓN PARA LOGUEAR (CORREGIDA A /api/log) ---
+  const registrarLog = async (accion) => {
+    try {
+      // AQUÍ ESTÁ EL ARREGLO: apunta a tu ruta real
+      await fetch('/api/log', { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: accion,
+          // Guardamos la primera carrera recomendada como contexto extra
+          detalles: resultado?.recomendaciones?.[0]?.carrera || 'Sin datos'
+        }),
+      });
+      console.log(`Log enviado a /api/log: ${accion}`);
+    } catch (error) {
+      console.error("Error al registrar log:", error);
+    }
+  };
+
+  // --- 4. MANEJO DEL PANEL DE METODOLOGÍA ---
   const togglePlanPanel = () => {
-    setIsPlanOpen(!isPlanOpen);
+    const nuevoEstado = !isPlanOpen;
+    setIsPlanOpen(nuevoEstado);
+
+    // Solo registramos el log cuando se ABRE el panel
+    if (nuevoEstado) {
+      registrarLog("VER_METODOLOGIA");
+    }
+  };
+
+  // --- 5. MANEJO DEL BOTÓN ESTADÍSTICAS ---
+  const handleVerEstadisticas = () => {
+    registrarLog("CLICK_ESTADISTICAS");
+    // Pequeña espera para asegurar que el log salga antes de cambiar de página
+    setTimeout(() => {
+        window.location.href = "/estadisticas";
+    }, 150);
   };
 
   if (!resultado) return (
@@ -88,7 +122,7 @@ export default function ResultadoPage() {
             Cada frase tiene un "nivel de implicancia" o peso diferente para cada carrera, 
             permitiéndonos calcular una afinidad inicial.
           </p>
-          
+
           <p>
             A veces, este cálculo puede resultar en empates entre carreras. Para resolver esto, aplicamos un 
             <strong> algoritmo de desempate de varios niveles</strong> que refina la puntuación basándose en 
@@ -96,7 +130,7 @@ export default function ResultadoPage() {
           </p>
 
           <p>
-            La efectividad de este método se validó con <strong>1 millón de simulaciones</strong>, 
+             La efectividad de este método se validó con <strong>1 millón de simulaciones</strong>, 
             demostrando cómo se reducen drásticamente los empates en cada paso del algoritmo.
           </p>
 
@@ -113,7 +147,7 @@ export default function ResultadoPage() {
           </div>
 
           <p>
-           Como muestra el gráfico, el algoritmo reduce los empates de un 45.09% inicial (450,895 casos) a solo un <strong>0.53%</strong> (5,344 casos), 
+            Como muestra el gráfico, el algoritmo reduce los empates de un 45.09% inicial (450,895 casos) a solo un <strong>0.53%</strong> (5,344 casos), 
             asegurando que la carrera recomendada sea la más alineada con tus selecciones
           </p>
           
@@ -131,7 +165,6 @@ export default function ResultadoPage() {
 
       <div className="podio">
         {resultado.recomendaciones.map((r, index) => {
-          // Calculamos el link específico para esta carrera
           const linkMalla = obtenerLinkCarrera(r.carrera);
           
           return (
@@ -151,19 +184,19 @@ export default function ResultadoPage() {
               </h3>
               <p className="descripcion-carrera">{r.descripcion}</p>
               
-              {/* --- AQUÍ ESTÁ EL CAMBIO --- */}
-              {/* Se quitó el puntaje de afinidad y se puso el botón */}
+              {/* Botón Individual a UACh con Log de Click */}
               <a 
                 href={linkMalla}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={() => registrarLog(`CLICK_MALLA_${r.carrera.replace(/ /g, '_').toUpperCase()}`)}
                 style={{
                   display: 'inline-block',
                   marginTop: '15px',
                   padding: '8px 20px',
                   backgroundColor: 'rgba(255, 255, 255, 0.25)',
                   color: 'white',
-                  borderRadius: '50px', // Bordes bien redondeados
+                  borderRadius: '50px',
                   textDecoration: 'none',
                   fontWeight: '600',
                   fontSize: '0.9rem',
@@ -176,8 +209,6 @@ export default function ResultadoPage() {
               >
                 Ver Plan de Estudios ➜
               </a>
-              {/* --------------------------- */}
-
             </div>
           );
         })}
@@ -198,12 +229,12 @@ export default function ResultadoPage() {
           Ver metodología
         </button>
         
-        {/* Botón genérico de abajo (opcional, ya que arriba tienen los links específicos) */}
+
         <button 
           className="Metodologia-button"
-          onClick={() => window.open("https://www.uach.cl/admision", "_blank")}
+          onClick={handleVerEstadisticas}
         >
-          Ver admisión general
+          Ver estadísticas laborales
         </button>
       </div>
     </main>

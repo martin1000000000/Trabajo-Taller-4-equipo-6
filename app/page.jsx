@@ -1,10 +1,24 @@
 "use client";
 import { useRouter } from "next/navigation";
-
+import { useLogger } from '../hooks/useLogger';
 
 export default function Home() {
   const router = useRouter();
-  const startTest = () => router.push("/test");
+  const { logAction } = useLogger();
+
+  const startTest = async () => {
+    await logAction({
+      action: 'TEST_START',
+      pageFrom: '/',
+      pageTo: '/test',
+      additionalData: {
+        testType: 'engineering_orientation',
+        timestamp: new Date().toISOString()
+      }
+    });
+    
+    router.push("/test");
+  };
 
   return (
     <main className="home-container">

@@ -1,9 +1,8 @@
-
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useLogger } from '../../hooks/useLogger';
 
-// 1. DEJA LA FUNCIÓN DE MEZCLAR AQUÍ
 function mezclarArray(array) {
   const shuffled = [...array];
   for (let i = shuffled.length - 1; i > 0; i--) {
@@ -15,6 +14,7 @@ function mezclarArray(array) {
 
 export default function TestPage(){
   const router = useRouter();
+  const { logAction } = useLogger();
   const [rasgos, setRasgos] = useState([]);
   const [seleccionadas, setSeleccionadas] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -25,29 +25,57 @@ export default function TestPage(){
     fetch("/api/frases")
       .then(r => r.json())
       .then(data => {
-        // 2. LLAMA A LA FUNCIÓN AQUÍ, DESPUÉS DE RECIBIR LOS DATOS
         setRasgos(mezclarArray(data)); 
       })
       .finally(() => setLoading(false));
   }, []);
 
-  const toggle = (id) => {
-    setSeleccionadas(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
+  const toggle = async (id, rasgo) => {
+    const wasSelected = seleccionadas.includes(id);
+    const newSelection = wasSelected 
+      ? seleccionadas.filter(x => x !== id) 
+      : [...seleccionadas, id];
+    
+    setSeleccionadas(newSelection);
     setError("");
+
+    await logAction({
+      action: 'TEST_SELECTION',
+      pageFrom: '/test',
+      pageTo: '/test',
+      additionalData: {
+        fraseId: id,
+        fraseTexto: rasgo,
+        action: wasSelected ? 'deselected' : 'selected',
+        totalSeleccionadas: newSelection.length,
+        timestamp: new Date().toISOString()
+      }
+    });
   };
 
-  const siguientePaso = () => {
+  const siguientePaso = async () => {
     if (seleccionadas.length < 4) {
       setError(`Debes seleccionar al menos 4 frases. Has seleccionado ${seleccionadas.length}.`);
       return;
     }
+    
     setEnviando(true);
+    
+    await logAction({
+      action: 'TEST_SELECTION_COMPLETE',
+      pageFrom: '/test',
+      pageTo: '/ordenar',
+      additionalData: {
+        totalFrasesSeleccionadas: seleccionadas.length,
+        frasesIds: seleccionadas,
+        timestamp: new Date().toISOString()
+      }
+    });
+    
     sessionStorage.setItem("seleccionadas_temp", JSON.stringify(seleccionadas));
     router.push("/ordenar");
   };
 
-  // ... (El resto de tu código HTML/JSX se mantiene igual) ...
-  
   if (loading) return (
     <main className="loading-container floating-particles">
       <div className="loading-spinner"></div>
@@ -66,7 +94,6 @@ export default function TestPage(){
           Haz clic en las frases para seleccionarlas. Puedes escoger entre 4 y 6 frases.
         </p>
      
-
         {error && (
           <div style={{
             color: 'red', 
@@ -85,7 +112,7 @@ export default function TestPage(){
           {rasgos.map(rasgo => (
             <button 
               key={rasgo.id} 
-              onClick={() => toggle(rasgo.id)} 
+              onClick={() => toggle(rasgo.id, rasgo.rasgo)} 
               className={`frase-button ${seleccionadas.includes(rasgo.id) ? 'selected' : ''}`}
               disabled={enviando}
             >
@@ -113,5 +140,3 @@ export default function TestPage(){
     </div>
   );
 }
-
-

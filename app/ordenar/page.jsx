@@ -1,38 +1,45 @@
-
 "use client";
-
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-   
+import { useLogger } from '../../hooks/useLogger';
+
 export default function OrdenarPage() {
   const router = useRouter();
-  const [frasesOrdenadas, setFrasesOrdenadas] = useState([]); // Almacenará los objetos de frases (id, rasgo)
+  const { logAction } = useLogger();
+  const [frasesOrdenadas, setFrasesOrdenadas] = useState([]);
   const [loading, setLoading] = useState(true);
   const [enviando, setEnviando] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     const cargarSeleccion = async () => {
-      // 1. Leer los IDs que guardamos en la página de test
       const idsGuardados = JSON.parse(sessionStorage.getItem("seleccionadas_temp"));
       
-      // Si no hay nada, o el usuario recargó, lo mandamos de vuelta al test
       if (!idsGuardados || idsGuardados.length === 0) {
         router.push("/test");
         return;
       }
 
       try {
-        // 2. Necesitamos los textos de esos IDs, así que llamamos a /api/frases
         const res = await fetch("/api/frases");
         const todasLasFrases = await res.json();
         
-        // 3. Filtramos la lista completa para quedarnos solo con las que seleccionó el usuario
         const seleccionadasCompletas = idsGuardados
           .map(id => todasLasFrases.find(f => f.id === id))
-          .filter(Boolean); // .filter(Boolean) elimina cualquier 'undefined' si algo falló
+          .filter(Boolean);
         
         setFrasesOrdenadas(seleccionadasCompletas);
+
+        await logAction({
+          action: 'TEST_ORDER_START',
+          pageFrom: '/test',
+          pageTo: '/ordenar',
+          additionalData: {
+            frasesCount: seleccionadasCompletas.length,
+            frasesIds: idsGuardados,
+            timestamp: new Date().toISOString()
+          }
+        });
 
       } catch (err) {
         setError("Error al cargar las frases. Intenta de nuevo.");
@@ -41,26 +48,52 @@ export default function OrdenarPage() {
       }
     };
     cargarSeleccion();
-  }, [router]); // Se ejecuta solo una vez al cargar la página
+  }, [router, logAction]);
 
-  // Función para mover un ítem en la lista
-  const mover = (index, direccion) => {
+  const mover = async (index, direccion, frase) => {
     const nuevas = [...frasesOrdenadas];
     const [item] = nuevas.splice(index, 1);
     nuevas.splice(index + direccion, 0, item);
     setFrasesOrdenadas(nuevas);
+
+    await logAction({
+      action: 'TEST_REORDER',
+      pageFrom: '/ordenar',
+      pageTo: '/ordenar',
+      additionalData: {
+        fraseId: frase.id,
+        fraseTexto: frase.rasgo,
+        oldPosition: index + 1,
+        newPosition: index + direccion + 1,
+        direction: direccion > 0 ? 'down' : 'up',
+        timestamp: new Date().toISOString()
+      }
+    });
   };
 
-  // 4. Esta es la función CLAVE: envía el orden a la API de recomendar
   const terminarTest = async () => {
     setEnviando(true);
     setError("");
 
     try {
-      // 5. Convertimos los objetos de frase de nuevo a solo IDs, pero en el nuevo orden
       const orderedIds = frasesOrdenadas.map(f => f.id);
       
-      // 6. Enviamos los IDs ordenados a la API de recomendación
+      await logAction({
+        action: 'TEST_ORDER_COMPLETE',
+        pageFrom: '/ordenar',
+        pageTo: '/resultado',
+        additionalData: {
+          frasesCount: orderedIds.length,
+          frasesOrdenadas: orderedIds,
+          ordenFinal: frasesOrdenadas.map((f, i) => ({
+            position: i + 1,
+            id: f.id,
+            texto: f.rasgo
+          })),
+          timestamp: new Date().toISOString()
+        }
+      });
+
       const res = await fetch("/api/recomendar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -73,16 +106,34 @@ export default function OrdenarPage() {
         throw new Error(data.error || "Error del servidor al calcular");
       }
 
-      // 7. Guardamos el resultado FINAL para la página de resultados
+      await logAction({
+        action: 'TEST_COMPLETE',
+        pageFrom: '/ordenar',
+        pageTo: '/resultado',
+        additionalData: {
+          carrerasRecomendadas: data.recomendaciones?.map(r => r.carrera) || [],
+          timestamp: new Date().toISOString()
+        }
+      });
+
       sessionStorage.setItem("resultado", JSON.stringify(data));
-      sessionStorage.removeItem("seleccionadas_temp"); // Limpiamos la selección temporal
+      sessionStorage.removeItem("seleccionadas_temp");
       
-      // 8. Enviamos al usuario a la página final
       router.push("/resultado");
 
     } catch (err) {
       console.error('Error:', err);
       setError(err.message || "Error de conexión");
+      
+      await logAction({
+        action: 'TEST_ERROR',
+        pageFrom: '/ordenar',
+        pageTo: '/ordenar',
+        additionalData: {
+          error: err.message,
+          timestamp: new Date().toISOString()
+        }
+      });
     } finally {
       setEnviando(false);
     }
@@ -117,7 +168,6 @@ export default function OrdenarPage() {
           </div>
         )}
 
-        {/* Esta es la lista ordenable */}
         <div style={{ 
           maxWidth: '800px', 
           margin: '2rem auto', 
@@ -151,13 +201,13 @@ export default function OrdenarPage() {
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                 <button 
-                  onClick={() => mover(index, -1)} 
+                  onClick={() => mover(index, -1, frase)} 
                   disabled={index === 0 || enviando}
                   style={{ cursor: 'pointer', padding: '5px 10px', opacity: index === 0 ? 0.3 : 1 }}>
                   ⬆️
                 </button>
                 <button 
-                  onClick={() => mover(index, 1)} 
+                  onClick={() => mover(index, 1, frase)} 
                   disabled={index === frasesOrdenadas.length - 1 || enviando}
                   style={{ cursor: 'pointer', padding: '5px 10px', opacity: index === frasesOrdenadas.length - 1 ? 0.3 : 1 }}>
                   ⬇️
