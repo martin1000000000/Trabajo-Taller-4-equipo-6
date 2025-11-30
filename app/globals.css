@@ -45,7 +45,7 @@ body {
   width: 100%;
   height: 100%;
   background: transparent;
-  z-index: -1;
+  z-index: -1; 
   opacity: 2;
 }
 
@@ -557,7 +557,6 @@ body {
   transform: scale(0.9);
   left: -15px;
 
-
 }
 
 /* Números del podio */
@@ -750,10 +749,10 @@ body {
 /* ===== NUEVO CONTENEDOR PARA BOTONES DE ESQUINAS ===== */
 .contenedor-botones-extremos {
   display: flex;
-  justify-content: space-between; /* <-- ESTA ES LA MAGIA */
+  justify-content: space-between; 
   align-items: center;
   width: 100%;
-  padding-top: 1rem; /* Opcional, para darle espacio */
+  padding-top: 1rem; /* Opcional para darle espacio */
 }
 
 /* ===== BOTÓN METODOLOGÍA (LIMPIO) ===== */
@@ -827,3 +826,299 @@ body {
   display: block;
   margin-left: auto; /* Botón de cerrar a la derecha */
 }
+
+
+
+
+/* =========================================
+   ESTILOS DE LA TARJETA DE METODOLOGÍA
+   ========================================= */
+
+.tutorial-card {
+  background-color: #ffffff;
+  border-radius: 16px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+  padding: 30px;
+  max-width: 90%; /* Ajuste para móviles */
+  width: 680px;
+  margin: 0 auto;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  border: 1px solid #f0f0f0;
+  color: #333;
+}
+
+/* HEADER */
+.tutorial-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f7f7f7;
+}
+
+.tutorial-title {
+  margin: 0;
+  font-size: 1.4rem;
+  color: #2d3436;
+  font-weight: 700;
+}
+
+.tutorial-step-counter {
+  background-color: #f1f2f6;
+  color: #7f8c8d;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+/* BODY */
+.tutorial-body {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  min-height: 220px;
+  margin-bottom: 25px;
+}
+
+/* Responsive para la tarjeta */
+@media (max-width: 650px) {
+  .tutorial-body {
+    flex-direction: column;
+    text-align: center;
+  }
+}
+
+.tutorial-visual-area {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #fafbfc;
+  padding: 20px;
+  border-radius: 12px;
+  border: 1px dashed #dfe6e9;
+  width: 100%;
+}
+
+.tutorial-text-area {
+  flex: 1;
+  font-size: 1rem;
+  line-height: 1.6;
+  color: #636e72;
+}
+
+/* FOOTER & BOTONES */
+.tutorial-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.tutorial-nav-buttons {
+  display: flex;
+  gap: 12px;
+  width: 100%;
+  max-width: 350px;
+}
+
+.btn-nav {
+  flex: 1;
+  padding: 12px 0;
+  border: none;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s, opacity 0.2s;
+  font-size: 0.95rem;
+}
+
+.btn-nav:active { transform: scale(0.98); }
+.btn-nav:disabled { opacity: 0.5; cursor: not-allowed; }
+
+.btn-primary { background-color: #6c5ce7; color: white; }
+.btn-finish { background-color: #00b894; color: white; }
+.btn-secondary { background-color: #dfe6e9; color: #636e72; }
+
+.btn-link-back {
+  background: none;
+  border: none;
+  color: #b2bec3;
+  text-decoration: underline;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.btn-link-back:hover { color: #636e72; }
+
+/* ELEMENTOS GRÁFICOS (Visuals internos) */
+/* =========================================
+   ELEMENTOS GRÁFICOS (VISUALS INTERNOS ACTUALIZADOS)
+   ========================================= */
+
+/* --- Paso 1: Gráfico de Barras (Escala de Suma) --- */
+.vis-chart-container {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-around;
+  width: 100%;
+  height: 140px;
+  padding-bottom: 5px;
+  border-bottom: 2px solid #eee;
+}
+
+.vis-bar-group {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+  justify-content: flex-end;
+  width: 18%;
+}
+
+.vis-bar {
+  width: 100%;
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: bold;
+  padding-top: 5px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+  transition: height 0.5s ease;
+}
+
+.vis-label {
+  margin-top: 5px;
+  font-size: 0.7rem;
+  color: #666;
+  font-weight: 600;
+}
+
+/* --- Paso 2: Distribución de Energía (Split) --- */
+.vis-split-container {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.vis-flow-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+}
+
+.vis-node {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+.source { background: #dfe6e9; color: #2d3436; width: 30%; }
+.target-strong { background: #6c5ce7; color: white; width: 30%; box-shadow: 0 0 10px rgba(108, 92, 231, 0.4); }
+
+.vis-arrow-solid {
+  flex: 1;
+  text-align: center;
+  color: #6c5ce7;
+  font-weight: bold;
+  font-size: 0.8rem;
+  border-bottom: 2px dashed #6c5ce7;
+  position: relative;
+  top: -4px;
+  margin: 0 10px;
+}
+
+.vis-arrow-split {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  margin: 0 5px;
+}
+
+.split-line {
+  font-size: 0.7rem;
+  background: #f1f2f6;
+  padding: 2px 5px;
+  border-radius: 4px;
+  white-space: nowrap;
+  color: #636e72;
+}
+.split-line.top { border-right: 3px solid #ff7675; }
+.split-line.bot { border-right: 3px solid #00cec9; }
+
+/* --- Paso 3: Carrera de Velocidad (Priority Reach) --- */
+.vis-race-track {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vis-track-lane {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.lane-label { font-size: 0.8rem; font-weight: bold; color: #2d3436; }
+
+.lane-progress {
+  height: 24px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  padding-left: 10px;
+  font-size: 0.7rem;
+  color: white;
+  font-weight: bold;
+  transition: width 1s ease;
+}
+
+.winner { background: linear-gradient(90deg, #6c5ce7, #a29bfe); box-shadow: 0 2px 5px rgba(108, 92, 231, 0.3); }
+.loser { background: #dfe6e9; color: #636e72; }
+
+/* --- Paso 4: Cálculo Final --- */
+.vis-final-calc {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+}
+
+.calc-box {
+  background: white;
+  border: 1px solid #dfe6e9;
+  padding: 8px;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.calc-title { font-size: 0.65rem; color: #b2bec3; text-transform: uppercase; }
+.calc-val { font-weight: bold; color: #2d3436; font-size: 0.9rem; }
+
+.calc-plus, .calc-equal { font-weight: 900; color: #b2bec3; font-size: 1.2rem; }
+
+.calc-result {
+  background: #fdcb6e;
+  color: #2d3436;
+  font-weight: bold;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }

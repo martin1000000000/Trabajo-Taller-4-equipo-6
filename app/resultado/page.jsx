@@ -11,7 +11,6 @@ const LINKS_MALLAS = {
   'mecánica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1779',
   'acústica': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1730',
   'naval': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1740',
-  'bachillerato': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807',
   'default': 'https://www.uach.cl/dw/admision/plandeestudio.php?car=1807' 
 };
 
@@ -27,15 +26,140 @@ const obtenerLinkCarrera = (nombreCarrera) => {
   if (nombreNormalizado.includes('mecanica')) return LINKS_MALLAS['mecánica'];
   if (nombreNormalizado.includes('acustica')) return LINKS_MALLAS['acústica'];
   if (nombreNormalizado.includes('naval')) return LINKS_MALLAS['naval'];
-  if (nombreNormalizado.includes('bachillerato')) return LINKS_MALLAS['bachillerato'];
   
   return LINKS_MALLAS['default'];
 };
 
+// --- 3. SUB-COMPONENTE: VISUALIZADOR DE METODOLOGÍA (DISEÑO TARJETA) ---
+// --- 3. SUB-COMPONENTE: VISUALIZADOR DE METODOLOGÍA (LÓGICA REAL) ---
+const AlgoritmoVisualizer = ({ onVolver }) => {
+  const [paso, setPaso] = useState(0);
 
+  const pasos = [
+    {
+      titulo: "1. Pesos de Porcentajes",
+      texto: " Ejemplo: Eliges 4 frases, la primera vale exactamente el 40% del total y la última solo el 10%.",
+      visual: (
+        <div className="vis-chart-container">
+          <div className="vis-bar-group">
+            <div className="vis-bar" style={{height: '100%', background: '#6c5ce7'}}>40%</div>
+            <span className="vis-label">Prio 1</span>
+          </div>
+          <div className="vis-bar-group">
+            <div className="vis-bar" style={{height: '75%', background: '#a29bfe'}}>30%</div>
+            <span className="vis-label">Prio 2</span>
+          </div>
+          <div className="vis-bar-group">
+            <div className="vis-bar" style={{height: '50%', background: '#74b9ff'}}>20%</div>
+            <span className="vis-label">Prio 3</span>
+          </div>
+          <div className="vis-bar-group">
+            <div className="vis-bar" style={{height: '25%', background: '#dfe6e9'}}>10%</div>
+            <span className="vis-label">Prio 4</span>
+          </div>
+        </div>
+      )
+    },
+    {
+      titulo: "2. Frases Diferenciadas",
+      texto: "Existen dos tipos de frases, unas específicas para una carrera y otras que pueden aplicar a mas de una. Esto afecta considerablemente al porcentaje de ponderación",
+      visual: (
+        <div className="vis-split-container">
+          {/* Caso Fuerte */}
+          <div className="vis-flow-row">
+            <div className="vis-node source">Frase A</div>
+            <div className="vis-arrow-solid">➜ 100%</div>
+            <div className="vis-node target-strong">Informática</div>
+          </div>
+          {/* Caso Dividido */}
+          <div className="vis-flow-row mt-2">
+            <div className="vis-node source">Frase B</div>
+            <div className="vis-arrow-split">
+              <span className="split-line top">50% ➜ Mecánica</span>
+              <span className="split-line bot">50% ➜ Naval</span>
+            </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      titulo: "3. Desempate por Prioridad",
+      texto: "Cuando dos carreras empatan en todo, el sistema se fija en cuál de las dos 'llegó a la meta' antes. Al bajar por tu lista ordenada, gana la carrera que consiguió sus puntos con tus primeras opciones, por encima de la que tuvo que esperar hasta el final de la lista para sumar lo mismo",
+      visual: (
+        <div className="vis-race-track">
+          <div className="vis-track-lane">
+            <span className="lane-label">Informática</span>
+            <div className="lane-progress winner" style={{width: '90%'}}>
+              <span className="runner">🚀 Prioridad 1</span>
+            </div>
+          </div>
+          <div className="vis-track-lane">
+            <span className="lane-label">Obras Civiles</span>
+            <div className="lane-progress loser" style={{width: '50%'}}>
+              <span className="runner">🐌 Prioridad 3</span>
+            </div>
+          </div>
+        </div>
+      )
+    }
+  
+  ];
+
+  return (
+    <div className="tutorial-card">
+      <div className="tutorial-header">
+        <h3 className="tutorial-title">{pasos[paso].titulo}</h3>
+        <span className="tutorial-step-counter">
+          Paso {paso + 1} de {pasos.length}
+        </span>
+      </div>
+
+      <div className="tutorial-body">
+        <div className="tutorial-visual-area">
+          {pasos[paso].visual}
+        </div>
+        <div className="tutorial-text-area">
+          <p>{pasos[paso].texto}</p>
+        </div>
+      </div>
+
+      <div className="tutorial-footer">
+        <div className="tutorial-nav-buttons">
+          <button 
+            onClick={() => setPaso(p => Math.max(0, p - 1))} 
+            disabled={paso === 0}
+            className="btn-nav btn-secondary"
+          >
+            Anterior
+          </button>
+          
+          {paso < pasos.length - 1 ? (
+            <button 
+              onClick={() => setPaso(p => Math.min(pasos.length - 1, p + 1))}
+              className="btn-nav btn-primary"
+            >
+              Siguiente
+            </button>
+          ) : (
+            <button onClick={onVolver} className="btn-nav btn-finish">
+              Entendido
+            </button>
+          )}
+        </div>
+        
+        <button onClick={onVolver} className="btn-link-back">
+          Volver a la metodología
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- 4. COMPONENTE PRINCIPAL ---
 export default function ResultadoPage() {
   const [resultado, setResultado] = useState(null);
   const [isPlanOpen, setIsPlanOpen] = useState(false);
+  const [showInteractive, setShowInteractive] = useState(false); // Estado para cambiar vista
 
   useEffect(() => {
     const data = sessionStorage.getItem("resultado");
@@ -45,16 +169,13 @@ export default function ResultadoPage() {
     }
   }, []);
 
-  // --- 3. FUNCIÓN PARA LOGUEAR (CORREGIDA A /api/log) ---
   const registrarLog = async (accion) => {
     try {
-      // AQUÍ ESTÁ EL ARREGLO: apunta a tu ruta real
       await fetch('/api/log', { 
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           action: accion,
-          // Guardamos la primera carrera recomendada como contexto extra
           detalles: resultado?.recomendaciones?.[0]?.carrera || 'Sin datos'
         }),
       });
@@ -64,21 +185,20 @@ export default function ResultadoPage() {
     }
   };
 
-  // --- 4. MANEJO DEL PANEL DE METODOLOGÍA ---
   const togglePlanPanel = () => {
     const nuevoEstado = !isPlanOpen;
     setIsPlanOpen(nuevoEstado);
 
-    // Solo registramos el log cuando se ABRE el panel
     if (nuevoEstado) {
       registrarLog("VER_METODOLOGIA");
+    } else {
+      // Al cerrar, reseteamos la vista a texto para la próxima vez
+      setTimeout(() => setShowInteractive(false), 300);
     }
   };
 
-  // --- 5. MANEJO DEL BOTÓN ESTADÍSTICAS ---
   const handleVerEstadisticas = () => {
     registrarLog("CLICK_ESTADISTICAS");
-    // Pequeña espera para asegurar que el log salga antes de cambiar de página
     setTimeout(() => {
         window.location.href = "/estadisticas";
     }, 150);
@@ -99,10 +219,7 @@ export default function ResultadoPage() {
         <p className="resultado-subtitle">
           No se pudieron calcular carreras basadas en tus respuestas.
         </p>
-        <button 
-          onClick={() => window.location.href = "/"}
-          className="btn-inicio"
-        >
+        <button onClick={() => window.location.href = "/"} className="btn-inicio">
           Volver al Inicio
         </button>
       </main>
@@ -115,48 +232,75 @@ export default function ResultadoPage() {
       {/* --- Panel de Metodología --- */}
       <div className={`plan-panel ${isPlanOpen ? 'open' : ''}`}>
         <div className="plan-panel-content">
-          <h1 style={{ marginBottom: '1.25rem' } }>Explicación de la Metodología</h1>
           
-          <p>
-            Nuestro sistema analiza las <strong>4-6 frases que seleccionaste y el orden</strong> en que las priorizaste. 
-            Cada frase tiene un "nivel de implicancia" o peso diferente para cada carrera, 
-            permitiéndonos calcular una afinidad inicial.
-          </p>
+          {/* AQUÍ DECIDIMOS QUÉ MOSTRAR: ¿VISUALIZADOR O TEXTO? */}
+          {showInteractive ? (
+             <AlgoritmoVisualizer onVolver={() => setShowInteractive(false)} />
+          ) : (
+            <>
+              <h1 style={{ marginBottom: '1.25rem' } }>Explicación de la Metodología</h1>
+              
+              <p>
+                Nuestro sistema analiza las <strong>4-6 frases que seleccionaste y el orden</strong> en que las priorizaste. 
+                Cada frase tiene un "nivel de implicancia" o peso diferente para cada carrera.
+              </p>
 
-          <p>
-            A veces, este cálculo puede resultar en empates entre carreras. Para resolver esto, aplicamos un 
-            <strong> algoritmo de desempate de varios niveles</strong> que refina la puntuación basándose en 
-            ponderaciones (Nivel 0), lógica simple (Nivel 1) y la posición de tus frases (Nivel 2).
-          </p>
+              {/* BOTÓN MAGICO PARA VER LA ANIMACIÓN */}
+              <button 
+                onClick={() => setShowInteractive(true)}
+                style={{
+                  width: '100%',
+                  padding: '15px',
+                  backgroundColor: '#6c5ce7',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '12px',
+                  fontWeight: 'bold',
+                  fontSize: '1rem',
+                  cursor: 'pointer',
+                  margin: '20px 0',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  gap: '10px',
+                  boxShadow: '0 4px 15px rgba(108, 92, 231, 0.3)',
+                  transition: 'transform 0.2s'
+                }}
+                onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
+                onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
+              >
+                <span>▶️</span> Ver explicación paso a paso
+              </button>
 
-          <p>
-             La efectividad de este método se validó con <strong>1 millón de simulaciones</strong>, 
-            demostrando cómo se reducen drásticamente los empates en cada paso del algoritmo.
-          </p>
+              <p>
+                A veces, este cálculo puede resultar en empates entre carreras. Para resolver esto, aplicamos un 
+                <strong> algoritmo de desempate de varios niveles</strong> que refina la puntuación.
+              </p>
 
-          <div style={{ 
-            width: '100%', maxWidth: '550px', margin: '20px auto', 
-            padding: '10px', background: '#ffffff', 
-            borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
-          }}>
-            <img 
-              src="/reduccion_empates.png" 
-              alt="Gráfico de Reducción de Empates"
-              style={{ width: '100%', height: 'auto', borderRadius: '4px' }} 
-            />
-          </div>
+              <div style={{ 
+                width: '100%', maxWidth: '550px', margin: '20px auto', 
+                padding: '10px', background: '#ffffff', 
+                borderRadius: '8px', boxShadow: '0 4px 12px rgba(0,0,0,0.05)'
+              }}>
+                <img 
+                  src="/reduccion_empates.png" 
+                  alt="Gráfico de Reducción de Empates"
+                  style={{ width: '100%', height: 'auto', borderRadius: '4px' }} 
+                />
+              </div>
 
-          <p>
-            Como muestra el gráfico, el algoritmo reduce los empates de un 45.09% inicial (450,895 casos) a solo un <strong>0.53%</strong> (5,344 casos), 
-            asegurando que la carrera recomendada sea la más alineada con tus selecciones
-          </p>
-          
-          <button onClick={togglePlanPanel} className="plan-panel-close">
-            Cerrar
-          </button>
+              <p>
+                Como muestra el gráfico, el algoritmo reduce los empates drásticamente, 
+                asegurando que la carrera recomendada sea la más alineada con tus selecciones.
+              </p>
+              
+              <button onClick={togglePlanPanel} className="plan-panel-close">
+                Cerrar
+              </button>
+            </>
+          )}
         </div>
       </div>
-
 
       <h1 className="resultado-title">Carreras más afines</h1>
       <p className="resultado-subtitle">
@@ -184,7 +328,6 @@ export default function ResultadoPage() {
               </h3>
               <p className="descripcion-carrera">{r.descripcion}</p>
               
-              {/* Botón Individual a UACh con Log de Click */}
               <a 
                 href={linkMalla}
                 target="_blank"
@@ -214,26 +357,15 @@ export default function ResultadoPage() {
         })}
       </div>
 
-      <button 
-        onClick={() => window.location.href = "/"}
-        className="btn-inicio"
-      >
+      <button onClick={() => window.location.href = "/"} className="btn-inicio">
         Volver al Inicio
       </button>
 
       <div className="contenedor-botones-extremos">
-        <button 
-          className="Plan-button"
-          onClick={togglePlanPanel}
-        >
+        <button className="Plan-button" onClick={togglePlanPanel}>
           Ver metodología
         </button>
-        
-
-        <button 
-          className="Metodologia-button"
-          onClick={handleVerEstadisticas}
-        >
+        <button className="Metodologia-button" onClick={handleVerEstadisticas}>
           Ver estadísticas laborales
         </button>
       </div>

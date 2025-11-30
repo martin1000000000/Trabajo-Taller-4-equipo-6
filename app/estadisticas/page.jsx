@@ -47,7 +47,9 @@ export default function EstadisticasPage() {
         maxWidth: '800px', 
         margin: '0 auto 50px', 
         textAlign: 'left',
-        backgroundColor: 'rgba(255, 255, 255, 0.5)', 
+        backgroundColor: 'rgba(255, 255, 255, 0.85)', 
+        backdropFilter: 'blur(10px)',                 // Desenfoca la imagen de atrás
+        WebkitBackdropFilter: 'blur(10px)',
         padding: '30px',
         borderRadius: '12px',
         border: '1px solid rgba(255, 255, 255, 0.6)'
@@ -75,7 +77,7 @@ export default function EstadisticasPage() {
           <li style={{ display: 'flex', alignItems: 'start', gap: '10px' }}>
             <span style={{ fontSize: '1.2rem' }}>🚀</span>
             <span style={{ color: '#0e2b5eff' }}>
-              <strong>Alta Demanda Digital:</strong> La <em>Ingeniería Civil Informática</em> lidera indiscutiblemente tanto en sueldos (cercanos a $2.4M) como en empleabilidad (90%), reflejando la necesidad crítica de tecnología.
+              <strong>Alta Demanda Digital:</strong> La <em>Ingeniería Civil Mecanica</em> lidera indiscutiblemente tanto en sueldos (cercanos a $1.9M) , mientra que se puede que ver que la demanda de empleabilidad se concentra en Informatica y Electrónica.
             </span>
           </li>
           
@@ -89,7 +91,7 @@ export default function EstadisticasPage() {
           <li style={{ display: 'flex', alignItems: 'start', gap: '10px' }}>
             <span style={{ fontSize: '1.2rem' }}>🎨</span>
             <span style={{ color: '#0e2b5eff' }}>
-              <strong>Nicho Creativo:</strong> Áreas como <em>Sonido</em> muestran un comportamiento diferente, priorizando la vocación artística, aunque con desafíos mayores en términos de inserción laboral inmediata y remuneración inicial comparada con las ingenierías duras.
+              <strong>Nicho Creativo:</strong> Áreas como <em>Sonido</em> muestran un comportamiento diferente, priorizando la vocación artística, aunque con desafíos mayores en términos de inserción laboral inmediata y remuneración inicial comparada con las demas ingenierías .
             </span>
           </li>
         
